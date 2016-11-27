@@ -87,7 +87,7 @@ public class ParallaxScaleBehavior extends AppBarLayout.Behavior {
      * @return 下拉的最大值
      */
     private int getMaxRange() {
-        return mContent != null ? mContent.getHeight() / 2 : 0;
+        return mContent != null ? mContent.getHeight() / 3 : 0;
     }
 
     /**

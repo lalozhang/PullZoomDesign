@@ -6,21 +6,25 @@
     android:layout_height="match_parent">
 
     <android.support.design.widget.AppBarLayout
-        android:id="@+id/appbar"
+        android:id="@+id/appBar"
         android:fitsSystemWindows="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_behavior="android.support.design.widget.ParallaxScaleBehavior">
-
+        android:background="#FFFFFF"
+        >
+        <!--app:layout_behavior="android.support.design.widget.ParallaxScaleBehavior"-->
         <android.support.design.widget.CollapsingToolbarLayout
-            app:title="Lalo"
+            app:title=""
             android:id="@+id/collapsing_toolbar"
             android:layout_width="match_parent"
             android:fitsSystemWindows="true"
             android:layout_height="wrap_content"
             app:collapsedTitleGravity="left"
             app:contentScrim="?colorPrimaryDark"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            app:collapsedTitleTextAppearance="@style/collapsedTitleTextStyle"
+            app:expandedTitleTextAppearance="@style/expandedTitleTextStyle"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            >
 
             <RelativeLayout
                 android:fitsSystemWindows="true"
@@ -36,7 +40,7 @@
                     android:src="@drawable/image"
                     android:id="@+id/image"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="320dp"
                     android:scaleType="centerCrop"/>
 
             </RelativeLayout>
@@ -59,7 +63,7 @@
             app:tabIndicatorColor="#1ba9ba"
             app:tabIndicatorHeight="3dp"
             app:tabSelectedTextColor="#1ba9ba"
-            app:tabTextColor="#666666" />
+            app:tabTextColor="#999999" />
     </android.support.design.widget.AppBarLayout>
 
 

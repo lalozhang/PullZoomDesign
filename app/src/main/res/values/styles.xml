@@ -9,10 +9,18 @@
     </style>
 
     <style name="AppTheme_NoTitle" parent="@style/AppTheme">
-        <item name="android:windowTranslucentStatus" >true</item><!--将布局延伸到状态栏-->
+        <item name="android:windowTranslucentStatus" >false</item><!--将布局延伸到状态栏-->
         <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+    <style name="collapsedTitleTextStyle" parent="@style/AppTheme">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+    <style name="expandedTitleTextStyle" parent="@style/AppTheme">
+        <item name="android:textSize">16sp</item><!--将布局延伸到状态栏-->
+        <item name="android:textColor">@android:color/transparent</item>
     </style>
 
 </resources>
