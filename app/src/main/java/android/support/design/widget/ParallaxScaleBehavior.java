@@ -101,7 +101,7 @@ public class ParallaxScaleBehavior extends AppBarLayout.Behavior {
         if (c != 0) {
             layoutAppbar(mToolLayout, -getTopAndBottomOffset());
             float scale = newOffset == 0 ? 1 : (float) (header.getHeight() + newOffset + 2) / (float) header.getHeight();
-            mTopHelper.setTopAndBottomOffset(-getTopAndBottomOffset() / 2);
+//            mTopHelper.setTopAndBottomOffset(-getTopAndBottomOffset() / 2);
             scaleContent(scale);
             if (mOffset != null) {
                 try {
