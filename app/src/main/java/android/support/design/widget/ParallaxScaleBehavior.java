@@ -2,8 +2,10 @@ package android.support.design.widget;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -49,20 +51,43 @@ public class ParallaxScaleBehavior extends AppBarLayout.Behavior {
     }
 
     @Override
+    public boolean onNestedPreFling(CoordinatorLayout coordinatorLayout, AppBarLayout child, View target, float velocityX, float velocityY) {
+        return getTopAndBottomOffset() > 0 //if has scale don't fling
+                || super.onNestedPreFling(coordinatorLayout, child, target, velocityX, velocityY);
+    }
+
+    @Override
     int setHeaderTopBottomOffset(CoordinatorLayout coordinatorLayout, AppBarLayout header, int newOffset, int minOffset, int maxOffset) {
         header.setClipChildren(newOffset <= 0);
-        if (getTopAndBottomOffset() > 0 || newOffset >= 0) {//fling start
+        int oldTop = getTopAndBottomOffset();
+        if (oldTop > 0 || newOffset >= 0) {//fling start
+            // start parallax
             return overScroll(coordinatorLayout, header, newOffset, getMaxRange());
         }
-        int scaled = super.setHeaderTopBottomOffset(coordinatorLayout, header, newOffset, minOffset, maxOffset);
-        if (scaled == 0 && newOffset > 0 && maxOffset == 0) {
-            scaled = overScroll(coordinatorLayout, header, newOffset, getMaxRange());
-        } else {
+        int scale = super.setHeaderTopBottomOffset(coordinatorLayout, header, newOffset, minOffset, maxOffset);
+        if (scale == 0 && newOffset > 0 && maxOffset == 0) {
+            // start parallax
+            scale = overScroll(coordinatorLayout, header, newOffset, getMaxRange());
+        } else {//stop parallax
             scaleContent(1);
             header.setClipChildren(true);
         }
-        return scaled;
+        return scale;
     }
+
+    @Override
+    public boolean onTouchEvent(CoordinatorLayout parent, AppBarLayout child, MotionEvent ev) {
+        boolean shouldInterrupt = MotionEventCompat.getActionMasked(ev) == MotionEvent.ACTION_UP && getTopAndBottomOffset() > 0;
+        super.onTouchEvent(parent, child, ev);
+        //if has scale abort filing,because HeaderBehavior invoked fling maxY=0,it is error
+        if (shouldInterrupt) {
+            if (mScroller != null)
+                mScroller.abortAnimation();
+            animateOffsetTo(parent,child,0);
+        }
+        return true;
+    }
+
 
     @Override
     public boolean onStartNestedScroll(CoordinatorLayout parent, AppBarLayout child, View directTargetChild, View target, int nestedScrollAxes) {
@@ -87,7 +112,7 @@ public class ParallaxScaleBehavior extends AppBarLayout.Behavior {
      * @return 下拉的最大值
      */
     private int getMaxRange() {
-        return mContent != null ? mContent.getHeight() / 3 : 0;
+        return mContent != null ? mContent.getHeight() / 2 : 0;
     }
 
     /**
@@ -96,16 +121,16 @@ public class ParallaxScaleBehavior extends AppBarLayout.Behavior {
     private int overScroll(CoordinatorLayout coordinatorLayout, AppBarLayout header, int newOffset, int maxOffset) {
         if (newOffset > maxOffset || mTopHelper == null)
             return 0;
-
         int c = super.setHeaderTopBottomOffset(coordinatorLayout, header, newOffset, Integer.MIN_VALUE, maxOffset);
         if (c != 0) {
-            layoutAppbar(mToolLayout, -getTopAndBottomOffset());
+            int top = getTopAndBottomOffset();
+            layoutAppbar(mToolLayout, -top);
             float scale = newOffset == 0 ? 1 : (float) (header.getHeight() + newOffset + 2) / (float) header.getHeight();
-//            mTopHelper.setTopAndBottomOffset(-getTopAndBottomOffset() / 2);
+            mTopHelper.setTopAndBottomOffset(-top / 2);
             scaleContent(scale);
             if (mOffset != null) {
                 try {
-                    mOffset.set(mToolLayout, getTopAndBottomOffset());
+                    mOffset.set(mToolLayout, top);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -138,7 +163,7 @@ public class ParallaxScaleBehavior extends AppBarLayout.Behavior {
     private View getParallaxView(AppBarLayout appBarLayout) {
         if (appBarLayout.getChildCount() > 0) {
             View view = appBarLayout.getChildAt(0);
-            if (view instanceof CollapsingToolbarLayout){
+            if (view instanceof CollapsingToolbarLayout) {
                 int count = ((CollapsingToolbarLayout) view).getChildCount();
                 for (int i = 0; i < count; i++) {
                     View child = ((CollapsingToolbarLayout) view).getChildAt(i);
@@ -233,7 +258,6 @@ public class ParallaxScaleBehavior extends AppBarLayout.Behavior {
         mAnimator.setDuration(Math.round(distanceDp * 1000 / ANIMATE_PER_SECOND));
 
         mAnimator.setIntValues(currentOffset, offset);
-        mAnimator.setDuration(500);
         mAnimator.start();
     }
 
